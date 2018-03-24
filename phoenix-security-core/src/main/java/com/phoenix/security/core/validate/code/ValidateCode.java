@@ -1,15 +1,15 @@
 package com.phoenix.security.core.validate.code;
 
-import java.awt.image.BufferedImage;
 import java.time.LocalDateTime;
 
 /**
- * 封装图形验证码
+ * User: phoenix
+ * Date: 2018-03-21 14:52
+ * Description: 验证码的父类，同时也是短信验证码类
  */
-public class ImageCode {
+public class ValidateCode {
 
-    private BufferedImage image;
-
+    //验证码内容
     private String code;
 
     //过期时间
@@ -17,27 +17,24 @@ public class ImageCode {
 
     /**
      *
-     * @param image
-     * @param code
+     * @param code 验证码数字
      * @param expireIn 过多少秒后过期
      */
-    public ImageCode(BufferedImage image, String code, int expireIn) {
-        this.image = image;
+    public ValidateCode(String code, int expireIn) {
         this.code = code;
         this.expireTime = LocalDateTime.now().plusSeconds(expireIn);
     }
 
     /**
      *
-     * @param image
-     * @param code
+     * @param code 验证码数字
      * @param expireTime 过期时间
      */
-    public ImageCode(BufferedImage image, String code, LocalDateTime expireTime) {
-        this.image = image;
+    public ValidateCode(String code, LocalDateTime expireTime) {
         this.code = code;
         this.expireTime = expireTime;
     }
+
 
     /**
      * 判断验证码是否过期
@@ -45,14 +42,6 @@ public class ImageCode {
      */
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(this.expireTime);
-    }
-
-    public BufferedImage getImage() {
-        return image;
-    }
-
-    public void setImage(BufferedImage image) {
-        this.image = image;
     }
 
     public String getCode() {

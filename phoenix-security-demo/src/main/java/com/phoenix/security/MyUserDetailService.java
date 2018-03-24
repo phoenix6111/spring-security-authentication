@@ -1,4 +1,4 @@
-package com.phoenix.security.browser;
+package com.phoenix.security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ public class MyUserDetailService implements UserDetailsService{
         mLogger.info("数据库密码："+password);
 
         //判断用户信息是否过期，是否锁定
-        return new User("phoenix",password,
+        return new User(username,password,
                 true,true,true,true,
                 AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
     }

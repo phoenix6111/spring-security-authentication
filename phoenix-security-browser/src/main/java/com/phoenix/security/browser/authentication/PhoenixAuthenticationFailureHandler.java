@@ -2,7 +2,7 @@ package com.phoenix.security.browser.authentication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phoenix.security.browser.support.SimpleResponse;
-import com.phoenix.security.core.properties.LoginType;
+import com.phoenix.security.core.validate.code.LoginType;
 import com.phoenix.security.core.properties.SecurityProperties;
 
 import org.slf4j.Logger;

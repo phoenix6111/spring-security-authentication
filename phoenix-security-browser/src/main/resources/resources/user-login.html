@@ -26,10 +26,18 @@
             }
         }
 
+        .form-divider {
+            margin: 30px 0;
+        }
+
+        .btn-sender {
+            margin-top: 5px;
+        }
+
     </style>
 </head>
 <body>
-    <h1 class="text-center m-title">用户登陆页面</h1>
+    <h3 class="text-center m-title">用户登陆页面</h3>
     <h3 class="text-center">表单登陆</h3>
     <div class="container">
         <div class="bd-example">
@@ -50,12 +58,54 @@
                     <label class="col-sm-2 col-form-label">验证码：</label>
                     <div class="col-sm-6">
                         <input type="text" name="imageCode" class="form-control" placeholder="验证码">
-                        <img src="/code/image">
+                        <img src="/code/image?width=200">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-check col-sm-6 offset-sm-2">
+                        <input type="checkbox" class="form-check-input" name="remember-me">
+                        <label class="form-check-label">Check me out</label>
                     </div>
                 </div>
                 <input type="submit" value="提交" class="btn btn-primary offset-sm-2">
             </form>
         </div>
     </div>
+
+    <hr class="form-divider">
+
+    <h3 class="text-center">用户短信验证码登陆</h3>
+    <div class="container">
+        <div class="bd-example">
+            <form action="/authentication/mobile" method="post">
+                <div class="form-group row text-right">
+                    <label class="col-sm-2 col-form-label">电话号码：</label>
+                    <div class="col-sm-6">
+                        <input type="text" name="mobile" id="mobile" class="form-control" placeholder="电话号码" value="18612345678">
+                    </div>
+                </div>
+                <div class="form-group row text-right">
+                    <label class="col-sm-2 col-form-label">验证码：</label>
+                    <div class="col-sm-6">
+                        <input type="text" name="smsCode" class="form-control" placeholder="验证码">
+                        <button type="button" class="btn btn-info btn-sender" id="sendSms" onSubmit="return false;">发送验证码</button>
+                    </div>
+                </div>
+                <input type="submit" value="提交" class="btn btn-primary offset-sm-2">
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+        $(function () {
+            var mobile = $("#mobile").val();
+            $("#sendSms").on("click",function () {
+                $.get("/code/sms?mobile="+mobile,function (res) {
+                    console.log("send sms success");
+                });
+            });
+        });
+    </script>
 </body>
 </html>
