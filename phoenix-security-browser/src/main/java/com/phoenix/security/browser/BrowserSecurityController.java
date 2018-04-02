@@ -13,9 +13,13 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.social.connect.Connection;
+import org.springframework.social.connect.web.ProviderSignInUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.ServletWebRequest;
 
 import java.io.IOException;
 
@@ -34,6 +38,9 @@ public class BrowserSecurityController {
     @Autowired
     private SecurityProperties mSecurityProperties;
 
+    @Autowired
+    private ProviderSignInUtils providerSignInUtils;
+
     @RequestMapping("/authentication/require")
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public SimpleResponse requireAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -48,6 +55,25 @@ public class BrowserSecurityController {
         }
 
         return new SimpleResponse("访问的服务需要身份认证，请引导用户到登陆页");
+    }
+
+    /**
+     * 获取社交登陆的用户信息
+     * @param request
+     * @return
+     */
+    @GetMapping("/social/user")
+    public SocialUserInfo getSocialUserInfo(HttpServletRequest request) {
+        SocialUserInfo userInfo = new SocialUserInfo();
+        Connection<?> connection = providerSignInUtils.getConnectionFromSession(new ServletWebRequest(request));
+        if(connection != null) {
+            userInfo.setProverId(connection.getKey().getProviderId());
+            userInfo.setProviderUserId(connection.getKey().getProviderUserId());
+            userInfo.setNickname(connection.getDisplayName());
+            userInfo.setAvatar(connection.getImageUrl());
+        }
+
+        return userInfo;
     }
 
 }

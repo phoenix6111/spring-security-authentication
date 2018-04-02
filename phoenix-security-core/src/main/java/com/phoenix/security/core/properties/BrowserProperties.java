@@ -10,6 +10,9 @@ public class BrowserProperties {
     //登陆方式
     private LoginType loginType = LoginType.JSON;
 
+    //默认的注册页
+    private String signUpUrl = "/user-signup.html";
+
     //登陆成功后，'记住我'的时间，单位为秒
     private int rememberMeSeconds = 3600;
 
@@ -35,5 +38,13 @@ public class BrowserProperties {
 
     public void setRememberMeSeconds(int rememberMeSeconds) {
         this.rememberMeSeconds = rememberMeSeconds;
+    }
+
+    public String getSignUpUrl() {
+        return signUpUrl;
+    }
+
+    public void setSignUpUrl(String signUpUrl) {
+        this.signUpUrl = signUpUrl;
     }
 }

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>用户登陆</title>
+    <title>Demo用户注册页</title>
     <link href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
         .m-title {
@@ -34,13 +34,38 @@
             margin-top: 5px;
         }
 
+        .user-info {
+            position: relative;
+            width: 100px;
+            margin: 25px auto 0;
+        }
+
+        #userAvatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 0;
+        }
+
+        #userNickname {
+            display: block;
+            margin-top: 15px;
+            font-size: 16px;
+            color: #b8c4ce;
+            text-align: center;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h3 class="text-center m-title">用户登陆页面</h3>
-        <h3 class="text-center">表单登陆</h3>
-        <form action="/authentication/form" method="post">
+        <h3 class="text-center m-title">用户注册页面</h3>
+        <div class="user-info">
+            <img src="" alt="用户头像" id="userAvatar" class="img-responsive">
+            <p id="userNickname"></p>
+        </div>
+        <form action="/user/register" method="post">
             <div class="form-group row text-right">
                 <label class="col-sm-2 col-form-label">用户名：</label>
                 <div class="col-sm-6">
@@ -53,13 +78,6 @@
                     <input type="password" name="password" class="form-control" placeholder="Password">
                 </div>
             </div>
-            <div class="form-group row text-right">
-                <label class="col-sm-2 col-form-label">验证码：</label>
-                <div class="col-sm-6">
-                    <input type="text" name="imageCode" class="form-control" placeholder="验证码">
-                    <img src="/code/image?width=200">
-                </div>
-            </div>
             <div class="row">
                 <div class="form-check col-sm-6 offset-sm-2">
                     <input type="checkbox" class="form-check-input" name="remember-me">
@@ -68,41 +86,16 @@
             </div>
             <input type="submit" value="提交" class="btn btn-primary offset-sm-2">
         </form>
-
-        <hr class="form-divider">
-
-        <h3 class="text-center">用户短信验证码登陆</h3>
-        <form action="/authentication/mobile" method="post">
-            <div class="form-group row text-right">
-                <label class="col-sm-2 col-form-label">电话号码：</label>
-                <div class="col-sm-6">
-                    <input type="text" name="mobile" id="mobile" class="form-control" placeholder="电话号码" value="18612345678">
-                </div>
-            </div>
-            <div class="form-group row text-right">
-                <label class="col-sm-2 col-form-label">验证码：</label>
-                <div class="col-sm-6">
-                    <input type="text" name="smsCode" class="form-control" placeholder="验证码">
-                    <button type="button" class="btn btn-info btn-sender" id="sendSms" onSubmit="return false;">发送验证码</button>
-                </div>
-            </div>
-            <input type="submit" value="提交" class="btn btn-primary offset-sm-2">
-        </form>
-
-        <hr class="form-divider">
-
-        <h3 class="text-center">社交账号登陆</h3>
-        <a class="btn btn-primary" href="/auth/qq/callback">QQ登陆</a>
     </div>
 
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script>
         $(function () {
-            var mobile = $("#mobile").val();
-            $("#sendSms").on("click",function () {
-                $.get("/code/sms?mobile="+mobile,function (res) {
-                    console.log("send sms success");
-                });
+            $.get("/social/user",function (res) {
+                console.log(res);
+                var avatar = res.avatar;
+                $("#userAvatar").attr("src",avatar);
+                $("#userNickname").html(res.nickname);
             });
         });
     </script>
