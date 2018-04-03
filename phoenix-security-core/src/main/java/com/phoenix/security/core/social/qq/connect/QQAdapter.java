@@ -11,7 +11,7 @@ import org.springframework.social.connect.UserProfile;
 /**
  * User: sheng
  * Date: 2018-03-30 0:26
- * Description: QQ 适配器
+ * Description: QQ API 适配器，将QQ api的数据模型转为spring social的标准模型。
  */
 public class QQAdapter implements ApiAdapter<QQ> {
 

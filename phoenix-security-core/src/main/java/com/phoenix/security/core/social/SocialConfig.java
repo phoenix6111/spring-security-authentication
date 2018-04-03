@@ -59,8 +59,8 @@ public class SocialConfig extends SocialConfigurerAdapter {
         repository.setTablePrefix("");
 
         /**
-         * 实现用户经社交账号登陆后系统自动注册功能，见org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository.findUserIdsWithConnection(Connection<?> connection)方法
-         * 如果实现了ConnectionSignUp接口类的成员变量connectionSignUp不为空且从数据库里查不出数据，它就会调用connectionSignUp的connectionSignUp.execute(connection)生成用户唯一标识，
+         * 实现用户经社交账号登陆后系统自动注册功能，见org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository.findUserIdsWithConnection(Connection<?> connect)方法
+         * 如果实现了ConnectionSignUp接口类的成员变量connectionSignUp不为空且从数据库里查不出数据，它就会调用connectionSignUp的connectionSignUp.execute(connect)生成用户唯一标识，
          * 并用该唯一标识作为userId，生成一条数据UserConnection表中的记录。实现社交账号一键登录
          *
          */
