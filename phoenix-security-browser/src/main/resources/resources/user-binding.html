@@ -2,107 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>用户登陆</title>
+    <title>用户社交账号绑定</title>
     <link href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
         .m-title {
             margin-top: 30px;
         }
 
-        .bd-example {
-            position: relative;
-            padding: 1rem;
-            margin: 1rem;
-            border: solid #f7f7f9;
-            border-width: .2rem 0 0;
-        }
-
-        @media (min-width: 576px){
-            .bd-example {
-                padding: 1.5rem;
-                margin-right: 0;
-                margin-left: 0;
-                border-width: .2rem;
-            }
-        }
-
-        .form-divider {
-            margin: 30px 0;
-        }
-
-        .btn-sender {
-            margin-top: 5px;
-        }
-
     </style>
 </head>
 <body>
     <div class="container">
-        <h3 class="text-center m-title">用户登陆页面</h3>
-        <h3 class="text-center">表单登陆</h3>
-        <form action="/authentication/form" method="post">
-            <div class="form-group row text-right">
-                <label class="col-sm-2 col-form-label">用户名：</label>
-                <div class="col-sm-6">
-                    <input type="text" name="username" class="form-control" placeholder="用户名">
-                </div>
-            </div>
-            <div class="form-group row text-right">
-                <label class="col-sm-2 col-form-label">密码：</label>
-                <div class="col-sm-6">
-                    <input type="password" name="password" class="form-control" placeholder="Password">
-                </div>
-            </div>
-            <div class="form-group row text-right">
-                <label class="col-sm-2 col-form-label">验证码：</label>
-                <div class="col-sm-6">
-                    <input type="text" name="imageCode" class="form-control" placeholder="验证码">
-                    <img src="/code/image?width=200">
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-check col-sm-6 offset-sm-2">
-                    <input type="checkbox" class="form-check-input" name="remember-me">
-                    <label class="form-check-label">Check me out</label>
-                </div>
-            </div>
-            <input type="submit" value="提交" class="btn btn-primary offset-sm-2">
-        </form>
+        <h3 class="text-center m-title">用户社交账号</h3>
 
-        <hr class="form-divider">
-
-        <h3 class="text-center">用户短信验证码登陆</h3>
-        <form action="/authentication/mobile" method="post">
-            <div class="form-group row text-right">
-                <label class="col-sm-2 col-form-label">电话号码：</label>
-                <div class="col-sm-6">
-                    <input type="text" name="mobile" id="mobile" class="form-control" placeholder="电话号码" value="18612345678">
-                </div>
-            </div>
-            <div class="form-group row text-right">
-                <label class="col-sm-2 col-form-label">验证码：</label>
-                <div class="col-sm-6">
-                    <input type="text" name="smsCode" class="form-control" placeholder="验证码">
-                    <button type="button" class="btn btn-info btn-sender" id="sendSms" onSubmit="return false;">发送验证码</button>
-                </div>
-            </div>
-            <div class="row">
-                <input type="submit" value="提交" class="btn btn-primary offset-sm-2">
-            </div>
-        </form>
-
-        <hr class="form-divider">
-
-        <h3 class="text-center">社交账号登陆</h3>
         <div class="row">
             <div class="col-6">
                 <div class="text-center">
-                    <a class="btn btn-primary" href="/auth/qq/callback">QQ登陆</a>
+                    <p>QQ</p>
+                    <p id="qqStatus">未绑定</p>
+                    <a id="qqBindBtn" class="btn btn-primary binding" data-type="qq" href="javascript:void(0)">绑定</a>
                 </div>
             </div>
             <div class="col-6">
                 <div class="text-center">
-                    <a class="btn btn-success" href="/auth/weixin">微信登陆</a>
+                    <p>QQ</p>
+                    <p id="weixinStatus">未绑定</p>
+                    <a id="weixinBindBtn" class="btn btn-success binding" data-type="weixin" href="javascript:void(0)">绑定</a>
                 </div>
             </div>
         </div>
@@ -111,11 +36,51 @@
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script>
         $(function () {
-            var mobile = $("#mobile").val();
-            $("#sendSms").on("click",function () {
-                $.get("/code/sms?mobile="+mobile,function (res) {
-                    console.log("send sms success");
-                });
+            var qqStatus = $("#qqStatus");
+            var qqBindBtn = $("#qqBindBtn");
+
+            var weixinStatus = $("#weixinStatus");
+            var weixinBindBtn = $("#weixinBindBtn");
+            $.get("/connect",function (res) {
+                console.log(res);
+                if(res['qq/callback']) {
+                    qqStatus.html("已绑定");
+                    qqBindBtn.html("解除绑定");
+                    qqBindBtn.data("binded",true);
+                } else {
+                    qqStatus.html("未绑定");
+                    qqBindBtn.html("绑定");
+                    qqBindBtn.data("binded",false);
+                }
+
+                if(res['weixin']) {
+                    weixinStatus.html("已绑定");
+                    weixinBindBtn.html("解除绑定");
+                    weixinBindBtn.data("binded",true);
+                } else {
+                    weixinStatus.html("未绑定");
+                    weixinBindBtn.html("绑定");
+                    weixinBindBtn.data("binded",false);
+                }
+            });
+
+            $(".binding").on("click",function () {
+                var $this = $(this);
+                if($this.data("type") === 'weixin') {
+                    console.log($this.data("binded"));
+                    if($this.data("binded")) {
+                        //如果微信未绑定则添加绑定，否则解除绑定
+                        $.ajax({
+                            type:"DELETE",
+                            url:"http://www.pinzhi365.com/connect/weixin",
+                            success:function (res) {
+                                alert("微信解除绑定成功");
+                            }
+                        })
+                    } else {
+                        window.location.href = "";
+                    }
+                }
             });
         });
     </script>
