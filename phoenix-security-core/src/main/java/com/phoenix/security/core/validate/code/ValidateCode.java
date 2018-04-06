@@ -1,5 +1,6 @@
 package com.phoenix.security.core.validate.code;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -7,7 +8,7 @@ import java.time.LocalDateTime;
  * Date: 2018-03-21 14:52
  * Description: 验证码的父类，同时也是短信验证码类
  */
-public class ValidateCode {
+public class ValidateCode implements Serializable {
 
     //验证码内容
     private String code;

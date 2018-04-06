@@ -16,8 +16,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.security.web.session.InvalidSessionStrategy;
+import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.security.SpringSocialConfigurer;
 
@@ -29,7 +32,7 @@ public class BrowserSecurityConfig extends AbstractChannelSecurityConfig {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private SecurityProperties mSecurityProperties;
+    private SecurityProperties securityProperties;
 
     @Autowired
     private ValidateCodeSecurityConfig validateCodeSecurityConfig;
@@ -49,6 +52,15 @@ public class BrowserSecurityConfig extends AbstractChannelSecurityConfig {
 
     @Autowired
     private UsersConnectionRepository usersConnectionRepository;
+
+    @Autowired
+    private SessionInformationExpiredStrategy sessionInformationExpiredStrategy;
+
+    @Autowired
+    private InvalidSessionStrategy invalidSessionStrategy;
+
+    @Autowired
+    private LogoutSuccessHandler logoutSuccessHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -84,55 +96,40 @@ public class BrowserSecurityConfig extends AbstractChannelSecurityConfig {
                 .and()
             .apply(phoenixSecuritySocialConfig)
                 .and()
+                //处理session失效
+            .sessionManagement()
+                .invalidSessionStrategy(invalidSessionStrategy)
+                .maximumSessions(securityProperties.getBrowser().getSession().getMaximumSessions())//session最大值为1
+                .maxSessionsPreventsLogin(securityProperties.getBrowser().getSession().isMaxSessionsPreventLogin())//达到最大session时是否阻止新的登录请求
+                .expiredSessionStrategy(sessionInformationExpiredStrategy)//session失效处理器
+                .and()
+                .and()
+            .logout()
+                .logoutUrl(securityProperties.getBrowser().getLogoutUrl())//自定义用户提交退出请求的url
+                .logoutSuccessHandler(logoutSuccessHandler)//用户退出时的处理handler
+                .deleteCookies("JSESSIONID")//删除cookie，参数为待删除的cookie的名字
+                .and()
             //记住我的功能
             .rememberMe()
                 .tokenRepository(persistentTokenRepository())
-                .tokenValiditySeconds(mSecurityProperties.getBrowser().getRememberMeSeconds())
+                .tokenValiditySeconds(securityProperties.getBrowser().getRememberMeSeconds())
                 .userDetailsService(userDetailsService)
                 .and()
             .authorizeRequests()
                 .antMatchers(
                         SecurityConstants.DEFAULT_UNAUTHENTICATION_URL,
                         SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE,
-                        mSecurityProperties.getBrowser().getLoginPage(),
-                        mSecurityProperties.getBrowser().getSignUpUrl(),
-                        "/user/register","/social/user",
-                        SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX+"/*"
+                        securityProperties.getBrowser().getLoginPage(),
+                        securityProperties.getBrowser().getSignUpUrl(),
+                        SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX+"/*",
+                        securityProperties.getBrowser().getSession().getSessionInvalidUrl(),
+                        securityProperties.getBrowser().getLogoutSuccessUrl(),
+                        "/user/register"
                 ).permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
             .csrf().disable();
 
-
-        /*ValidateCodeFilter validateCodeFilter = new ValidateCodeFilter();
-        validateCodeFilter.setAuthenticationFailureHandler(phoenixAuthenticationFailureHandler);
-        validateCodeFilter.setSecurityProperties(mSecurityProperties);
-        validateCodeFilter.afterPropertiesSet();
-
-        http.addFilterBefore(validateCodeFilter, UsernamePasswordAuthenticationFilter.class)
-            .formLogin()
-                .loginPage("/authentication/require")
-                .loginProcessingUrl("/authentication/form")
-                .successHandler(phoenixAuthenticationSuccessHandler)
-                .failureHandler(phoenixAuthenticationFailureHandler)
-                .and()
-            //记住我的功能
-            .rememberMe()
-                .tokenRepository(persistentTokenRepository())
-                .tokenValiditySeconds(mSecurityProperties.getBrowser().getRememberMeSeconds())
-                .userDetailsService(userDetailsService)
-                .and()
-            .authorizeRequests()
-                .antMatchers(
-                        SecurityConstants.DEFAULT_UNAUTHENTICATION_URL,
-                        SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE,
-                        mSecurityProperties.getBrowser().getLoginPage(),
-                        SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX+"/*"
-                ).permitAll()
-                .anyRequest()
-                .authenticated()
-                .and()
-            .csrf().disable();*/
     }
 }

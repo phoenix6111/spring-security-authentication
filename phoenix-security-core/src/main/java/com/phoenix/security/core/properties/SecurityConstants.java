@@ -44,4 +44,9 @@ public interface SecurityConstants {
      * @see SecurityController
      */
     String DEFAULT_LOGIN_PAGE_URL = "/user-login.html";
+
+    /**
+     * session失效默认的跳转地址
+     */
+    public static final String DEFAULT_SESSION_INVALID_URL = "/session/invalid";
 }

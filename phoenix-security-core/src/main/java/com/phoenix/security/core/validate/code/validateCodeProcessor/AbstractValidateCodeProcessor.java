@@ -67,7 +67,11 @@ public abstract class AbstractValidateCodeProcessor<T extends ValidateCode> impl
      * @param validateCode
      */
     private void save(ServletWebRequest request,T validateCode) {
-        mSessionStrategy.setAttribute(request,getSessionKey(request),validateCode);
+        /**
+         * 因为我们校验验证码时，只要校验验证码是否正确就行了，不需要把ImageCode时的BufferedImage或其它属性放进session，所以我们重新构造一个只包含
+         * code和expireTime的ValidateCode放进session
+         */
+        mSessionStrategy.setAttribute(request,getSessionKey(request),new ValidateCode(validateCode.getCode(),validateCode.getExpireTime()));
     }
 
     /**

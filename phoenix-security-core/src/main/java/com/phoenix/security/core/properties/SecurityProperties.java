@@ -7,10 +7,14 @@ public class SecurityProperties {
 
     private BrowserProperties browser = new BrowserProperties();
 
-    //验证码配置信息
+    /**
+     * 验证码配置信息
+     */
     private ValidateCodeProperties code = new ValidateCodeProperties();
 
-    //社交配置信息
+    /**
+     * 社交配置信息
+     */
     private SocialProperties social = new SocialProperties();
 
     public BrowserProperties getBrowser() {
