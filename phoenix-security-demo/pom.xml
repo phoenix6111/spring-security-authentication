@@ -12,11 +12,18 @@
     <artifactId>phoenix-security-demo</artifactId>
 
     <dependencies>
-        <dependency>
+        <!--<dependency>
             <groupId>com.phoenix.security</groupId>
             <artifactId>phoenix-security-browser</artifactId>
             <version>${phoenix.security.version}</version>
+        </dependency>-->
+
+        <dependency>
+            <groupId>com.phoenix.security</groupId>
+            <artifactId>phoenix-security-app</artifactId>
+            <version>${phoenix.security.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

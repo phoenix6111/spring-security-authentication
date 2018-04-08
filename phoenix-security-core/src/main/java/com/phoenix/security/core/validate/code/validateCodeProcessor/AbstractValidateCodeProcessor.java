@@ -3,14 +3,13 @@ package com.phoenix.security.core.validate.code.validateCodeProcessor;
 import com.phoenix.security.core.validate.code.ValidateCode;
 import com.phoenix.security.core.validate.code.ValidateCodeException;
 import com.phoenix.security.core.validate.code.ValidateCodeGenerator;
+import com.phoenix.security.core.validate.code.ValidateCodeRepository;
 import com.phoenix.security.core.validate.code.ValidateCodeType;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.social.connect.web.HttpSessionSessionStrategy;
-import org.springframework.social.connect.web.SessionStrategy;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -33,9 +32,10 @@ public abstract class AbstractValidateCodeProcessor<T extends ValidateCode> impl
     private Map<String,ValidateCodeGenerator> validateCodeGenerators;
 
     /**
-     * 操作session的工具类
+     * 验证码操作工具
      */
-    private SessionStrategy mSessionStrategy = new HttpSessionSessionStrategy();
+    @Autowired
+    private ValidateCodeRepository validateCodeRepository;
 
     /**
      * 创建校验码
@@ -71,21 +71,11 @@ public abstract class AbstractValidateCodeProcessor<T extends ValidateCode> impl
          * 因为我们校验验证码时，只要校验验证码是否正确就行了，不需要把ImageCode时的BufferedImage或其它属性放进session，所以我们重新构造一个只包含
          * code和expireTime的ValidateCode放进session
          */
-        mSessionStrategy.setAttribute(request,getSessionKey(request),new ValidateCode(validateCode.getCode(),validateCode.getExpireTime()));
-    }
-
-    /**
-     * 构建验证码放入session时的key
-     * @param request
-     * @return
-     */
-    private String getSessionKey(ServletWebRequest request) {
-        return SESSION_KEY_PREFIX + getValidateCodeType(request).toString().toUpperCase();
+        validateCodeRepository.save(request,new ValidateCode(validateCode.getCode(),validateCode.getExpireTime()),getValidateCodeType(request));
     }
 
     /**
      * 生成校验码
-     *
      * @param request
      * @return
      */
@@ -130,10 +120,8 @@ public abstract class AbstractValidateCodeProcessor<T extends ValidateCode> impl
     public void validate(ServletWebRequest request) {
         //获取验证码的类型
         ValidateCodeType validateCodeType = getValidateCodeType(request);
-        //获取session中保存ValidateCode的key
-        String sessionKey = getSessionKey(request);
-        //获取session中保存的ValidateCode
-        T codeInSession = (T) mSessionStrategy.getAttribute(request,sessionKey);
+        //获取保存在系统中(session或redis)中保存的ValidateCode
+        T codeInStore = (T) validateCodeRepository.get(request,validateCodeType);
 
         //request中验证码的值
         String codeInRequest;
@@ -146,14 +134,14 @@ public abstract class AbstractValidateCodeProcessor<T extends ValidateCode> impl
         }
 
         //如果session中不存在验证码的值，则抛出异常
-        if(codeInSession == null) {
+        if(codeInStore == null) {
             throw new ValidateCodeException(validateCodeType + "验证码不存在");
         }
 
         //判断验证码是否过期
-        if(codeInSession.isExpired()) {
-            //删除session中的验证码
-            mSessionStrategy.removeAttribute(request, sessionKey);
+        if(codeInStore.isExpired()) {
+            //删除系统存储中的验证码
+            validateCodeRepository.remove(request, validateCodeType);
             throw new ValidateCodeException(validateCodeType + "验证码已过期");
         }
 
@@ -163,12 +151,12 @@ public abstract class AbstractValidateCodeProcessor<T extends ValidateCode> impl
         }
 
         //判断输入的验证码是否正确
-        if(!StringUtils.equalsIgnoreCase(codeInSession.getCode(),codeInRequest)) {
+        if(!StringUtils.equalsIgnoreCase(codeInStore.getCode(),codeInRequest)) {
             throw new ValidateCodeException(validateCodeType + "验证码不匹配");
         }
 
-        //最后将已经存在session中的验证码删除
-        mSessionStrategy.removeAttribute(request, sessionKey);
+        //最后将已经存在系统存储中的验证码删除
+        validateCodeRepository.remove(request, validateCodeType);
 
     }
 }

@@ -47,7 +47,7 @@ public class MyUserDetailService implements UserDetailsService,SocialUserDetails
         //判断用户信息是否过期，是否锁定
         return new SocialUser(userId,password,
                 true,true,true,true,
-                AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
+                AuthorityUtils.commaSeparatedStringToAuthorityList("admin,ROLE_USER"));
     }
 
 

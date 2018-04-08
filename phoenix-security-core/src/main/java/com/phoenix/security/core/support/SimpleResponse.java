@@ -1,4 +1,4 @@
-package com.phoenix.security.browser.support;
+package com.phoenix.security.core.support;
 
 public class SimpleResponse {
 

@@ -1,7 +1,7 @@
 package com.phoenix.security.browser.session;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.phoenix.security.browser.support.SimpleResponse;
+import com.phoenix.security.core.support.SimpleResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

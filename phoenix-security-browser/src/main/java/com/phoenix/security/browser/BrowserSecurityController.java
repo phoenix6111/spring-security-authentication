@@ -1,6 +1,6 @@
 package com.phoenix.security.browser;
 
-import com.phoenix.security.browser.support.SimpleResponse;
+import com.phoenix.security.core.support.SimpleResponse;
 import com.phoenix.security.core.properties.SecurityProperties;
 
 import org.apache.commons.lang.StringUtils;
