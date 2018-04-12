@@ -1,4 +1,4 @@
-package com.phoenix.security.browser;
+package com.phoenix.security.core.support;
 
 /**
  * User: sheng

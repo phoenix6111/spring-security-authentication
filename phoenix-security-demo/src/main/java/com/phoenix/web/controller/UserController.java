@@ -3,14 +3,18 @@ package com.phoenix.web.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.phoenix.dto.User;
 import com.phoenix.dto.UserQueryCondition;
+import com.phoenix.security.app.social.AppSignUpUtils;
+import com.phoenix.security.core.properties.SecurityProperties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
 import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -24,12 +28,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
@@ -37,8 +44,16 @@ import io.swagger.annotations.ApiParam;
 @RequestMapping("/user")
 public class UserController {
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     @Autowired
     private ProviderSignInUtils providerSignInUtils;
+
+    @Autowired
+    private AppSignUpUtils appSignUpUtils;
+
+    @Autowired
+    private SecurityProperties securityProperties;
 
     /**
      * 用户注册
@@ -48,12 +63,25 @@ public class UserController {
     public void register(User user, HttpServletRequest request) {
 
         String userId = user.getUsername();
-        providerSignInUtils.doPostSignUp(userId, new ServletWebRequest(request));
-
+        //浏览器环境下完成用户注册
+//        providerSignInUtils.doPostSignUp(userId, new ServletWebRequest(request));
+        //App环境下完成用户注册
+        appSignUpUtils.doPostSignUp(userId,new ServletWebRequest(request));
     }
 
     @GetMapping("/me")
-    public Object getCurrentUser(@AuthenticationPrincipal UserDetails user) {
+    public Object getCurrentUser(Authentication user,HttpServletRequest request) throws UnsupportedEncodingException {
+        String headerAuthentication = request.getHeader("Authorization");
+        String token = StringUtils.substringAfter(headerAuthentication,"bearer ");
+
+        Claims claims = Jwts.parser()
+                            .setSigningKey(securityProperties.getOauth2().getJwtSignKey().getBytes("UTF-8"))
+                            .parseClaimsJws(token)
+                            .getBody();
+        logger.info(String.valueOf(claims));
+        String company = (String) claims.get("company");
+        logger.info("company == "+company);
+
         return user;
 //        return SecurityContextHolder.getContext().getAuthentication();
     }

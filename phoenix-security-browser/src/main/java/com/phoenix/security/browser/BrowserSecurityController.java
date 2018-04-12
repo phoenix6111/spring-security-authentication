@@ -2,6 +2,7 @@ package com.phoenix.security.browser;
 
 import com.phoenix.security.core.support.SimpleResponse;
 import com.phoenix.security.core.properties.SecurityProperties;
+import com.phoenix.security.core.support.SocialUserInfo;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

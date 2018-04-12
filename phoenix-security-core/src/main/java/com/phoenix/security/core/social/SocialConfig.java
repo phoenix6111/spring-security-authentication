@@ -50,6 +50,9 @@ public class SocialConfig extends SocialConfigurerAdapter {
     @Autowired(required = false)
     private ConnectionSignUp connectionSignUp;
 
+    @Autowired(required = false)
+    private SocialAuthenticationFilterPostProcess socialAuthenticationFilterPostProcess;
+
     @Override
     public UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
         //构建UserConnection Repository，通过UserConnectionRepository操作数据库表UserConnection，
@@ -81,6 +84,8 @@ public class SocialConfig extends SocialConfigurerAdapter {
         PhoenixSpringSocialConfigurer configurer = new PhoenixSpringSocialConfigurer(filterProcessesUrl);
         //设置注册页
         configurer.signupUrl(securityProperties.getBrowser().getSignUpUrl());
+        //设置App端的AuthenticationSuccessHandler
+        configurer.setSocialAuthenticationFilterPostProcess(socialAuthenticationFilterPostProcess);
 
         return configurer;
     }

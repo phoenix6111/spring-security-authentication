@@ -13,6 +13,8 @@ public class PhoenixSpringSocialConfigurer extends SpringSocialConfigurer {
 
     private String filterProcessesUrl;
 
+    private SocialAuthenticationFilterPostProcess socialAuthenticationFilterPostProcess;
+
     public PhoenixSpringSocialConfigurer(String filterProcessesUrl) {
         this.filterProcessesUrl = filterProcessesUrl;
     }
@@ -23,6 +25,19 @@ public class PhoenixSpringSocialConfigurer extends SpringSocialConfigurer {
         SocialAuthenticationFilter filter = (SocialAuthenticationFilter)super.postProcess(object);
         filter.setFilterProcessesUrl(this.filterProcessesUrl);
 
+        //针对App实现设置AuthenticationSuccessHandler
+        if(this.socialAuthenticationFilterPostProcess != null) {
+            this.socialAuthenticationFilterPostProcess.process(filter);
+        }
+
         return (T) filter;
+    }
+
+    public void setSocialAuthenticationFilterPostProcess(SocialAuthenticationFilterPostProcess socialAuthenticationFilterPostProcess) {
+        this.socialAuthenticationFilterPostProcess = socialAuthenticationFilterPostProcess;
+    }
+
+    public SocialAuthenticationFilterPostProcess getSocialAuthenticationFilterPostProcess() {
+        return socialAuthenticationFilterPostProcess;
     }
 }

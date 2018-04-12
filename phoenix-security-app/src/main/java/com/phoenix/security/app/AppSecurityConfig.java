@@ -1,5 +1,6 @@
 package com.phoenix.security.app;
 
+import com.phoenix.security.app.social.openid.OpenIdAuthenticationConfig;
 import com.phoenix.security.core.authentication.mobile.SmsCodeAuthenticationSecurityConfig;
 import com.phoenix.security.core.properties.SecurityConstants;
 import com.phoenix.security.core.properties.SecurityProperties;
@@ -53,6 +54,9 @@ public class AppSecurityConfig extends ResourceServerConfigurerAdapter {
     @Autowired
     private AuthenticationFailureHandler phoenixAuthenticationFailureHandler;
 
+    @Autowired
+    private OpenIdAuthenticationConfig openIdAuthenticationConfig;
+
     @Override
     public void configure(HttpSecurity http) throws Exception {
 
@@ -63,12 +67,14 @@ public class AppSecurityConfig extends ResourceServerConfigurerAdapter {
                 .failureHandler(phoenixAuthenticationFailureHandler);
 
         http
-                //.apply(validateCodeSecurityConfig)
-                //.and()
+                .apply(validateCodeSecurityConfig)
+                    .and()
                 .apply(smsCodeAuthenticationSecurityConfig)
-                .and()
+                    .and()
                 .apply(phoenixSecuritySocialConfig)
-                .and()
+                    .and()
+                .apply(openIdAuthenticationConfig)
+                    .and()
                 .authorizeRequests()
                     .antMatchers(
                             SecurityConstants.DEFAULT_UNAUTHENTICATION_URL,
@@ -78,7 +84,7 @@ public class AppSecurityConfig extends ResourceServerConfigurerAdapter {
                             SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX+"/*",
                             securityProperties.getBrowser().getSession().getSessionInvalidUrl(),
                             securityProperties.getBrowser().getLogoutSuccessUrl(),
-                            "/user/register"
+                            "/user/register","/social/signUp"
                     ).permitAll()
                     .anyRequest()
                     .authenticated()
